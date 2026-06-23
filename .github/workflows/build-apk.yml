@@ -28,24 +28,16 @@ jobs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v2
 
-    - name: Install pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 10
-
-    - name: Install dependencies
-      run: |
-        cd /home/runner/work/concrete-calculator/concrete-calculator
-        pnpm install
-
     - name: Build web assets
       run: |
-        cd /home/runner/work/concrete-calculator/concrete-calculator
+        cd $GITHUB_WORKSPACE
+        npm install -g pnpm
+        pnpm install
         pnpm run build
 
     - name: Build Android APK
       run: |
-        cd /home/runner/work/concrete-calculator/concrete-calculator/android
+        cd $GITHUB_WORKSPACE/android
         chmod +x gradlew
         ./gradlew assembleRelease
 

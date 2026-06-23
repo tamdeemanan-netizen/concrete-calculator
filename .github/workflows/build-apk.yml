@@ -3,8 +3,6 @@ name: Build Android APK
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -12,46 +10,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '22'
+    - uses: actions/checkout@v4
 
     - name: Set up Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
 
     - name: Set up Android SDK
-      uses: android-actions/setup-android@v2
-
-    - name: Build web assets
-      run: |
-        cd $GITHUB_WORKSPACE
-        npm install -g pnpm
-        pnpm install
-        pnpm run build
+      uses: android-actions/setup-android@v3
 
     - name: Build Android APK
       run: |
-        cd $GITHUB_WORKSPACE/android
+        cd android
         chmod +x gradlew
-        ./gradlew assembleRelease
+        ./gradlew assembleRelease --no-daemon
 
-    - name: Upload APK to artifacts
-      uses: actions/upload-artifact@v3
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
       with:
         name: concrete-calculator-apk
         path: android/app/build/outputs/apk/release/app-release.apk
         retention-days: 30
-
-    - name: Create Release
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v1
-      with:
-        files: android/app/build/outputs/apk/release/app-release.apk
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
